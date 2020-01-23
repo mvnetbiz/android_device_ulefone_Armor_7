@@ -11,6 +11,7 @@ on init
     mkdir /config/usb_gadget/g1/configs/b.1 0777 shell shell
     mkdir /config/usb_gadget/g1/configs/b.1/strings/0x409 0770 shell shell
     mkdir /config/usb_gadget/g1/functions/ffs.adb
+    setprop sys.usb.ffs.aio_compat 1
 
 on property:ro.debuggable=0
     # distinguish USB shoulde connect or not, i.e. CDP vs SDP
@@ -28,13 +29,9 @@ on property:sys.usb.ffs.ready=1
     symlink /config/usb_gadget/g1/functions/ffs.adb /config/usb_gadget/g1/configs/b.1/f1
     write /config/usb_gadget/g1/UDC "musb-hdrc"
 
-on property:ro.mtk_emmc_support=1
+on post-fs
     # Support A/B feature for emmc boot region
+    symlink /dev/block/sda /dev/block/mmcblk0boot0
+    symlink /dev/block/sdb /dev/block/mmcblk0boot1
     symlink /dev/block/mmcblk0boot0 /dev/block/platform/bootdevice/by-name/preloader_a
     symlink /dev/block/mmcblk0boot1 /dev/block/platform/bootdevice/by-name/preloader_b
-
-on property:ro.mtk_ufs_booting=1
-    # Support A/B feature for ufs boot region
-    symlink /dev/block/sda /dev/block/platform/bootdevice/by-name/preloader_a
-    symlink /dev/block/sdb /dev/block/platform/bootdevice/by-name/preloader_b
-
